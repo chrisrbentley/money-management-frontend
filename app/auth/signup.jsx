@@ -1,20 +1,48 @@
 import { StyleSheet, SafeAreaView, Button } from 'react-native';
 import { TextInput, View, Text } from 'react-native';
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 
 export default function SignUp() {
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [error, setError] = useState('');
 
-	const handleSignUp = () => {
+	const router = useRouter();
+
+	const handleSignUp = async () => {
+		setError('');
+
 		if (!firstName || !lastName || !email || !password) {
-			// show empty inputs error
+			setError('All fields are required.');
 			return;
 		}
 
 		// handle sign up here
+		try {
+			const response = await fetch('http://localhost:5001/api/auth/register', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ firstName, lastName, email, password }),
+			});
+
+			// const data = await response.json();
+
+			if (response.ok) {
+				setError(''); // clear any errors
+				router.push('auth/login');
+			} else {
+				setError('Failed to register.');
+			}
+		} catch (err) {
+			// Handle any errors
+			setError('An error occurred. Please try again later.');
+			console.error(err);
+		}
 	};
 
 	return (
@@ -45,9 +73,13 @@ export default function SignUp() {
 					style={styles.input}
 				/>
 			</View>
+
+			{error ? <Text style={styles.errorText}>{error}</Text> : null}
+
 			<Button
 				title="Sign Up"
 				color={'black'}
+				onPress={handleSignUp}
 			/>
 		</SafeAreaView>
 	);
