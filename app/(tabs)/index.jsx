@@ -23,6 +23,9 @@ export default function HomeScreen() {
 					<Button
 						title="Log In"
 						color={'black'}
+						onPress={() => {
+							router.push('auth/login');
+						}}
 					/>
 				</View>
 			</View>
