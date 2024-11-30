@@ -2,11 +2,14 @@ import { StyleSheet, SafeAreaView, Button } from 'react-native';
 import { TextInput, View, Text } from 'react-native';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
-export default function SignUp() {
+export default function Login() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
+
+	const router = useRouter();
 
 	const handleLogin = async () => {
 		if (!email || !password) {
@@ -27,11 +30,11 @@ export default function SignUp() {
 
 			if (response.ok) {
 				await AsyncStorage.setItem('authToken', data.token);
+				await AsyncStorage.setItem('user', JSON.stringify(data.user));
 
-				setError(''); // clear any errors
-
-				// for debugging purposes
 				console.log('Token saved:', data.token);
+				setError('');
+				router.push('/');
 			} else {
 				setError(data.message || 'Failed to login.');
 			}
@@ -40,8 +43,6 @@ export default function SignUp() {
 			setError('An error occurred. Please try again later.');
 			console.error(err);
 		}
-
-		// handle login here
 	};
 
 	return (
