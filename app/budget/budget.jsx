@@ -22,6 +22,7 @@ export default function Budget() {
 		new Date(new Date().setDate(new Date().getDate() + 5)),
 	);
 	const [error, setError] = useState('');
+	const [currentBudgetId, setCurrentBudgetId] = useState(null);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -89,7 +90,44 @@ export default function Budget() {
 				setAmount('');
 				setStartDate(new Date());
 				setEndDate(new Date(new Date().setDate(new Date().getDate() + 5)));
-				getBudgets(); // Refresh budgets
+				getBudgets();
+			}
+		} catch (err) {}
+	};
+
+	const updateBudget = async () => {
+		if (!name || !amount) {
+			setError('All fields are required.');
+			return;
+		}
+
+		try {
+			const token = await getToken();
+			const response = await fetch(
+				`http://192.168.1.96:5001/api/budget/${currentBudgetId}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: token,
+					},
+					body: JSON.stringify({
+						name,
+						amount: parseFloat(amount),
+						startDate: startDate.toISOString(),
+						endDate: endDate.toISOString(),
+					}),
+				},
+			);
+
+			if (response.ok) {
+				setName('');
+				setAmount('');
+				setStartDate(new Date());
+				setEndDate(new Date(new Date().setDate(new Date().getDate() + 5)));
+				setCurrentBudgetId(null);
+				getBudgets();
+				setFormOpen(false);
 			}
 		} catch (err) {}
 	};
@@ -122,6 +160,15 @@ export default function Budget() {
 		}
 	};
 
+	const handleEditClick = (budget) => {
+		setName(budget.name);
+		setAmount(budget.amount.toString());
+		setStartDate(new Date(budget.startDate));
+		setEndDate(new Date(budget.endDate));
+		setCurrentBudgetId(budget._id);
+		setFormOpen(true);
+	};
+
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -143,7 +190,7 @@ export default function Budget() {
 									<Button
 										title="Update"
 										color="blue"
-										onPress={() => {}}
+										onPress={() => handleEditClick(budget)}
 									/>
 									<Button
 										title="Delete"
@@ -192,9 +239,9 @@ export default function Budget() {
 							onChange={handleEndDateChange}
 						/>
 						<Button
-							title="Submit"
+							title={currentBudgetId ? 'Update Budget' : 'Submit'}
 							color={'black'}
-							onPress={createBudget}
+							onPress={currentBudgetId ? updateBudget : createBudget}
 						/>
 					</View>
 				)}
