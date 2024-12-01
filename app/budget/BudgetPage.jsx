@@ -11,10 +11,14 @@ import RNDateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
+import Budget from '../../components/Budget';
+import BudgetForm from '../../components/BudgetForm';
+import ExpenseForm from '../../components/ExpenseForm';
 
-export default function Budget() {
+export default function BudgetPage() {
 	const [budgets, setBudgets] = useState(null);
 	const [formOpen, setFormOpen] = useState(false);
+	const [expenseFormOpen, setExpenseFormOpen] = useState(false); // For expense form
 	const [name, setName] = useState('');
 	const [amount, setAmount] = useState('');
 	const [startDate, setStartDate] = useState(new Date());
@@ -23,6 +27,8 @@ export default function Budget() {
 	);
 	const [error, setError] = useState('');
 	const [currentBudgetId, setCurrentBudgetId] = useState(null);
+	const [expenseName, setExpenseName] = useState(''); // Expense fields
+	const [expenseAmount, setExpenseAmount] = useState('');
 
 	useFocusEffect(
 		useCallback(() => {
@@ -176,31 +182,16 @@ export default function Budget() {
 					<View>
 						<Text style={styles.title}>Here are your budgets</Text>
 						{budgets.map((budget) => (
-							<View
+							<Budget
 								key={budget._id}
-								style={styles.budgetContainer}
-							>
-								<Text style={styles.budgetText}>{budget.name}</Text>
-								<Text style={styles.budgetText}>${budget.amount}</Text>
-								<Text style={styles.budgetDate}>
-									{new Date(budget.startDate).toLocaleDateString('en-US')} -{' '}
-									{new Date(budget.endDate).toLocaleDateString('en-US')}
-								</Text>
-								<View style={styles.buttonContainer}>
-									<Button
-										title="Update"
-										color="blue"
-										onPress={() => handleEditClick(budget)}
-									/>
-									<Button
-										title="Delete"
-										color="red"
-										onPress={() => {
-											deleteBudget(budget._id);
-										}}
-									/>
-								</View>
-							</View>
+								budget={budget}
+								deleteBudget={deleteBudget}
+								handleEditClick={handleEditClick}
+								expenseFormOpen={expenseFormOpen}
+								setExpenseFormOpen={setExpenseFormOpen}
+								setCurrentBudgetId={setCurrentBudgetId}
+								getToken={getToken}
+							/>
 						))}
 					</View>
 				) : (
@@ -212,38 +203,19 @@ export default function Budget() {
 					onPress={() => setFormOpen((prevState) => !prevState)}
 				/>
 				{formOpen && (
-					<View style={styles.form}>
-						<TextInput
-							placeholder="Name"
-							value={name}
-							onChangeText={(text) => setName(text)}
-							style={styles.input}
-						/>
-						<TextInput
-							placeholder="Amount"
-							value={amount}
-							keyboardType="numeric"
-							onChangeText={(text) => setAmount(text)}
-							style={styles.input}
-						/>
-						<Text style={styles.label}>Start Date:</Text>
-						<RNDateTimePicker
-							mode="date"
-							value={startDate}
-							onChange={handleStartDateChange}
-						/>
-						<Text style={styles.label}>End Date:</Text>
-						<RNDateTimePicker
-							mode="date"
-							value={endDate}
-							onChange={handleEndDateChange}
-						/>
-						<Button
-							title={currentBudgetId ? 'Update Budget' : 'Submit'}
-							color={'black'}
-							onPress={currentBudgetId ? updateBudget : createBudget}
-						/>
-					</View>
+					<BudgetForm
+						name={name}
+						setName={setName}
+						amount={amount}
+						setAmount={setAmount}
+						startDate={startDate}
+						handleStartDateChange={handleStartDateChange}
+						endDate={endDate}
+						handleEndDateChange={handleEndDateChange}
+						onSubmit={currentBudgetId ? updateBudget : createBudget}
+						onClose={() => setFormOpen(false)}
+						currentBudgetId={currentBudgetId}
+					/>
 				)}
 			</ScrollView>
 		</SafeAreaView>
@@ -264,52 +236,36 @@ const styles = StyleSheet.create({
 		marginBottom: 10,
 		color: '#333',
 	},
-	budgetContainer: {
-		backgroundColor: '#fff',
-		padding: 15,
-		marginVertical: 5,
-		borderRadius: 8,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
-		elevation: 2,
-	},
-	budgetText: {
-		fontSize: 16,
-		color: '#333',
-	},
+
 	budgetDate: {
 		fontSize: 14,
-		color: '#555',
-		marginTop: 5,
+		color: '#888',
 	},
 	noBudgetText: {
-		fontSize: 18,
-		color: '#666',
-		marginBottom: 10,
+		color: '#888',
 		textAlign: 'center',
+		fontSize: 16,
 	},
+
 	form: {
 		marginTop: 20,
-		width: '100%',
+		backgroundColor: '#fff',
+		padding: 20,
+		borderRadius: 10,
+		shadowColor: '#000',
+		shadowOpacity: 0.1,
+		shadowRadius: 5,
 	},
 	input: {
-		borderWidth: 1,
-		borderColor: '#ccc',
+		marginBottom: 10,
 		padding: 10,
-		marginVertical: 10,
+		borderWidth: 1,
+		borderColor: '#ddd',
 		borderRadius: 5,
-		backgroundColor: '#fff',
 	},
 	label: {
 		marginTop: 10,
 		fontSize: 14,
-		color: '#333',
-	},
-	buttonContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginTop: 10,
+		color: '#666',
 	},
 });
