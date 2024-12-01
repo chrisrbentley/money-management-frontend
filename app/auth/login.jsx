@@ -1,5 +1,11 @@
-import { StyleSheet, SafeAreaView, Button } from 'react-native';
-import { TextInput, View, Text } from 'react-native';
+import {
+	StyleSheet,
+	SafeAreaView,
+	Button,
+	TextInput,
+	View,
+	Text,
+} from 'react-native';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -18,21 +24,13 @@ export default function Login() {
 		}
 
 		try {
-			const response = await fetch('http://localhost:5001/api/auth/login', {
+			const response = await fetch('http://192.168.1.96:5001/api/auth/login', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({ email, password }),
 			});
-
-			/* const response = await fetch('http://192.168.1.96:5001/api/auth/login', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, password }),
-			}); */
 
 			const data = await response.json();
 
@@ -55,12 +53,14 @@ export default function Login() {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<View style={styles.flexColumn}>
+			<View style={styles.form}>
 				<TextInput
 					placeholder="Email"
 					value={email}
 					onChangeText={(text) => setEmail(text)}
 					style={styles.input}
+					autoCapitalize="none"
+					placeholderTextColor="#bbb"
 				/>
 				<TextInput
 					placeholder="Password"
@@ -68,12 +68,15 @@ export default function Login() {
 					onChangeText={(text) => setPassword(text)}
 					style={styles.input}
 					secureTextEntry={true}
+					autoCapitalize="none"
+					placeholderTextColor="#bbb"
 				/>
-				{error ? <Text style={styles.error}>{error}</Text> : null}
+				{error ? <Text style={styles.errorText}>{error}</Text> : null}
 			</View>
+
 			<Button
 				title="Log In"
-				color={'black'}
+				color="#0a7ea4"
 				onPress={handleLogin}
 			/>
 		</SafeAreaView>
@@ -82,11 +85,27 @@ export default function Login() {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: '#0a7ea4',
 		flex: 1,
-		padding: 10,
+		backgroundColor: '#f4f4f4',
+		padding: 20,
+	},
+	form: {
+		marginBottom: 20,
 	},
 	input: {
-		padding: '10',
+		height: 50,
+		borderColor: '#ddd',
+		borderWidth: 1,
+		borderRadius: 8,
+		paddingHorizontal: 15,
+		marginBottom: 15,
+		backgroundColor: '#fff',
+		fontSize: 16,
+		color: '#333',
+	},
+	errorText: {
+		color: 'red',
+		textAlign: 'center',
+		marginBottom: 15,
 	},
 });

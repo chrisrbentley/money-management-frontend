@@ -45,11 +45,7 @@ export default function HomeScreen() {
 						color="black"
 						onPress={() => router.push('/budget/BudgetPage')}
 					/>
-					<Button
-						title="Expenses"
-						color="black"
-						onPress={() => router.push('expenses/expenses')}
-					/>
+
 					<Button
 						title="Log Out"
 						color="black"

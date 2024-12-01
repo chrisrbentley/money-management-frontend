@@ -22,6 +22,7 @@ const BudgetForm = ({
 				value={name}
 				onChangeText={(text) => setName(text)}
 				style={styles.input}
+				placeholderTextColor="#bbb"
 			/>
 			<TextInput
 				placeholder="Amount"
@@ -29,6 +30,7 @@ const BudgetForm = ({
 				keyboardType="numeric"
 				onChangeText={(text) => setAmount(text)}
 				style={styles.input}
+				placeholderTextColor="#bbb"
 			/>
 			<Text style={styles.label}>Start Date:</Text>
 			<RNDateTimePicker

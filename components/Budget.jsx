@@ -1,6 +1,10 @@
 import { StyleSheet, Button } from 'react-native';
 import { View, Text } from 'react-native';
 import ExpenseForm from './ExpenseForm';
+import { useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+import Expense from './Expense';
 
 export default function Budget({
 	budget,
@@ -8,9 +12,40 @@ export default function Budget({
 	handleEditClick,
 	expenseFormOpen,
 	setExpenseFormOpen,
-	// setCurrentBudgetId,
 	getToken,
 }) {
+	const [expenses, setExpenses] = useState([]);
+
+	const getExpenses = async () => {
+		try {
+			const token = await getToken();
+			const response = await fetch('http://192.168.1.96:5001/api/expenses', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: token,
+				},
+			});
+			const data = await response.json();
+			if (response.ok) {
+				const filteredExpenses = data.filter(
+					(expense) => expense.budgetId === budget._id,
+				);
+				setExpenses(filteredExpenses);
+			} else {
+				console.error(data.message);
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			getExpenses();
+		}, [budget._id]), // Dependency on `budget._id` ensures the effect is triggered when the budget changes
+	);
+
 	return (
 		<View
 			key={budget._id}
@@ -31,7 +66,7 @@ export default function Budget({
 				<Button
 					title="Add Expense"
 					color="black"
-					onPress={() => setExpenseFormOpen(true)} // open expense form
+					onPress={() => setExpenseFormOpen(true)}
 				/>
 				<Button
 					title="Delete"
@@ -41,11 +76,29 @@ export default function Budget({
 					}}
 				/>
 			</View>
+			{expenses.length > 0 && (
+				<View>
+					{expenses.map((expense) => {
+						return (
+							<Expense
+								key={expense._id}
+								expense={expense}
+								getExpenses={getExpenses}
+								getToken={getToken}
+								setExpenses={setExpenses}
+								expenses={expenses} // Ensure expenses is passed down
+							/>
+						);
+					})}
+				</View>
+			)}
 			{expenseFormOpen && (
 				<ExpenseForm
 					budget={budget}
 					getToken={getToken}
 					setExpenseFormOpen={setExpenseFormOpen}
+					setExpenses={setExpenses}
+					expenses={expenses}
 				/>
 			)}
 		</View>

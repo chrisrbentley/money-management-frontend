@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 
-const ExpenseForm = ({ budget, getToken, setExpenseFormOpen }) => {
+const ExpenseForm = ({ budget, getToken, setExpenseFormOpen, setExpenses }) => {
 	const [expenseName, setExpenseName] = useState('');
 	const [expenseAmount, setExpenseAmount] = useState('');
 
@@ -13,7 +13,6 @@ const ExpenseForm = ({ budget, getToken, setExpenseFormOpen }) => {
 
 		try {
 			const token = await getToken();
-			console.log(`token from expense form: ${token}`);
 
 			const response = await fetch('http://192.168.1.96:5001/api/expenses', {
 				method: 'POST',
@@ -30,14 +29,16 @@ const ExpenseForm = ({ budget, getToken, setExpenseFormOpen }) => {
 
 			if (response.ok) {
 				const data = await response.json();
+				// Update the expenses list immediately
 				setExpenseName('');
 				setExpenseAmount('');
-				console.log(data);
-				//get expenses
+				setExpenses((prevExpenses) => [
+					...prevExpenses,
+					data, // Add the new expense to the list
+				]);
 			} else {
 				const data = await response.json();
 				console.error(data.message);
-				// setError data.message
 			}
 		} catch (err) {
 			console.error(err);
@@ -51,6 +52,7 @@ const ExpenseForm = ({ budget, getToken, setExpenseFormOpen }) => {
 				value={expenseName}
 				onChangeText={(text) => setExpenseName(text)}
 				style={styles.input}
+				placeholderTextColor="#bbb"
 			/>
 			<TextInput
 				placeholder="Expense Amount"
@@ -58,6 +60,7 @@ const ExpenseForm = ({ budget, getToken, setExpenseFormOpen }) => {
 				keyboardType="numeric"
 				onChangeText={(text) => setExpenseAmount(text)}
 				style={styles.input}
+				placeholderTextColor="#bbb"
 			/>
 			<Button
 				title="Submit Expense"

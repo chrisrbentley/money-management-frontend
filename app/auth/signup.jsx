@@ -1,5 +1,11 @@
-import { StyleSheet, SafeAreaView, Button } from 'react-native';
-import { TextInput, View, Text } from 'react-native';
+import {
+	StyleSheet,
+	SafeAreaView,
+	Button,
+	TextInput,
+	View,
+	Text,
+} from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -22,15 +28,16 @@ export default function SignUp() {
 
 		// handle sign up here
 		try {
-			const response = await fetch('http://localhost:5001/api/auth/register', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await fetch(
+				'http://192.168.1.96:5001/api/auth/register',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ firstName, lastName, email, password }),
 				},
-				body: JSON.stringify({ firstName, lastName, email, password }),
-			});
-
-			// const data = await response.json();
+			);
 
 			if (response.ok) {
 				setError(''); // clear any errors
@@ -47,30 +54,37 @@ export default function SignUp() {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<View style={styles.flexColumn}>
+			<View style={styles.form}>
 				<TextInput
 					placeholder="First Name"
 					value={firstName}
 					onChangeText={(text) => setFirstName(text)}
 					style={styles.input}
+					placeholderTextColor="#bbb"
 				/>
 				<TextInput
 					placeholder="Last Name"
 					value={lastName}
 					onChangeText={(text) => setLastName(text)}
 					style={styles.input}
+					placeholderTextColor="#bbb"
 				/>
 				<TextInput
 					placeholder="Email"
 					value={email}
 					onChangeText={(text) => setEmail(text)}
 					style={styles.input}
+					autoCapitalize="none"
+					placeholderTextColor="#bbb"
 				/>
 				<TextInput
 					placeholder="Password"
 					value={password}
 					onChangeText={(text) => setPassword(text)}
 					style={styles.input}
+					autoCapitalize="none"
+					secureTextEntry
+					placeholderTextColor="#bbb"
 				/>
 			</View>
 
@@ -78,7 +92,7 @@ export default function SignUp() {
 
 			<Button
 				title="Sign Up"
-				color={'black'}
+				color="#0a7ea4"
 				onPress={handleSignUp}
 			/>
 		</SafeAreaView>
@@ -87,11 +101,26 @@ export default function SignUp() {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: '#0a7ea4',
 		flex: 1,
-		padding: 10,
+		backgroundColor: '#f4f4f4',
+		padding: 20,
+	},
+	form: {
+		marginBottom: 20,
 	},
 	input: {
-		padding: '10',
+		height: 50,
+		borderColor: '#ddd',
+		borderWidth: 1,
+		borderRadius: 8,
+		paddingHorizontal: 15,
+		marginBottom: 15,
+		backgroundColor: '#fff',
+		fontSize: 16,
+	},
+	errorText: {
+		color: 'red',
+		textAlign: 'center',
+		marginBottom: 15,
 	},
 });

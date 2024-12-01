@@ -13,7 +13,6 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import Budget from '../../components/Budget';
 import BudgetForm from '../../components/BudgetForm';
-import ExpenseForm from '../../components/ExpenseForm';
 
 export default function BudgetPage() {
 	const [budgets, setBudgets] = useState(null);
