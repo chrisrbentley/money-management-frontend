@@ -1,5 +1,11 @@
-import { StyleSheet, SafeAreaView, Button, ScrollView } from 'react-native';
-import { View, Text, TextInput } from 'react-native';
+import {
+	StyleSheet,
+	SafeAreaView,
+	Button,
+	TextInput,
+	ScrollView,
+} from 'react-native';
+import { View, Text } from 'react-native';
 import { useState } from 'react';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -88,9 +94,37 @@ export default function Budget() {
 		} catch (err) {}
 	};
 
+	const deleteBudget = async (budgetID) => {
+		try {
+			const token = await getToken();
+
+			const response = await fetch(
+				`http://192.168.1.96:5001/api/budget/${budgetID}`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: token,
+					},
+				},
+			);
+
+			if (response.ok) {
+				const data = await response.json();
+				console.log(data.message);
+				getBudgets();
+			} else {
+				const errorData = await response.json();
+				console.error(errorData.message);
+			}
+		} catch (err) {
+			console.error('Error deleting budget: ', err);
+		}
+	};
+
 	return (
 		<SafeAreaView style={styles.container}>
-			<ScrollView>
+			<ScrollView contentContainerStyle={styles.scrollContainer}>
 				{budgets && budgets.length > 0 ? (
 					<View>
 						<Text style={styles.title}>Here are your budgets</Text>
@@ -105,6 +139,20 @@ export default function Budget() {
 									{new Date(budget.startDate).toLocaleDateString('en-US')} -{' '}
 									{new Date(budget.endDate).toLocaleDateString('en-US')}
 								</Text>
+								<View style={styles.buttonContainer}>
+									<Button
+										title="Update"
+										color="blue"
+										onPress={() => {}}
+									/>
+									<Button
+										title="Delete"
+										color="red"
+										onPress={() => {
+											deleteBudget(budget._id);
+										}}
+									/>
+								</View>
 							</View>
 						))}
 					</View>
@@ -159,6 +207,8 @@ const styles = StyleSheet.create({
 	container: {
 		backgroundColor: '#f0f0f0',
 		flex: 1,
+	},
+	scrollContainer: {
 		padding: 20,
 	},
 	title: {
@@ -209,5 +259,10 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		fontSize: 14,
 		color: '#333',
+	},
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginTop: 10,
 	},
 });
