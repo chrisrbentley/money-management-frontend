@@ -26,6 +26,14 @@ export default function Login() {
 				body: JSON.stringify({ email, password }),
 			});
 
+			/* const response = await fetch('http://192.168.1.96:5001/api/auth/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password }),
+			}); */
+
 			const data = await response.json();
 
 			if (response.ok) {

@@ -14,6 +14,7 @@ export default function HomeScreen() {
 		useCallback(() => {
 			const checkLoginStatus = async () => {
 				const token = await AsyncStorage.getItem('authToken');
+				console.log(token);
 				setLoggedIn(!!token);
 
 				const user = await AsyncStorage.getItem('user');
@@ -42,6 +43,7 @@ export default function HomeScreen() {
 					<Button
 						title="Budgets"
 						color="black"
+						onPress={() => router.push('budget/budget')}
 					/>
 					<Button
 						title="Log Out"
